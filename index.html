@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interactive Total Knee Replacement</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f7f9fc;color:#12264a;font-family:Arial,Helvetica,sans-serif}
+header{height:88px;background:#fff;border-bottom:1px solid #e2e7ef;display:flex;align-items:center;justify-content:space-between;padding:0 30px}
+.brand{display:flex;align-items:center;gap:14px}.logo{width:54px;height:54px;border:2px solid #e3e9f2;border-radius:50%;display:grid;place-items:center;font-size:28px}
+h1{font-size:25px;margin:0}.sub{color:#61708a;margin-top:4px}.top button{border:0;background:none;color:#233a5d;font-size:15px;cursor:pointer}
+main{max-width:1450px;margin:auto;padding:26px;display:grid;grid-template-columns:minmax(0,1fr) 365px;gap:24px}
+.viewer{position:relative;background:#0c7184;border-radius:14px;overflow:hidden;min-height:730px;box-shadow:0 8px 28px #172b3b22}
+.visual{width:100%;height:730px;object-fit:cover;object-position:center;display:block;cursor:grab;transform-origin:center;transition:transform .15s ease}
+.visual:active{cursor:grabbing}
+.overlay{position:absolute;left:22px;top:25px;background:#102c3dcc;color:white;border-radius:11px;padding:14px 17px;line-height:2;font-size:14px}
+.tools{position:absolute;left:18px;bottom:18px;display:flex;gap:8px}.tools button{background:#102c3de8;color:#fff;border:1px solid #ffffff33;border-radius:8px;padding:10px 13px;cursor:pointer}
+.full{position:absolute;right:18px;bottom:18px;background:#102c3de8;color:white;border:0;border-radius:8px;padding:11px;cursor:pointer}
+.panel{background:#fff;border:1px solid #e0e6ef;border-radius:14px;padding:24px;box-shadow:0 8px 28px #172b3b18}
+h2{font-size:24px;margin:0 0 22px}.row{display:flex;justify-content:space-between;font-weight:bold;font-size:14px}
+input{width:100%;accent-color:#246bfd;margin:15px 0}.degree{text-align:center;color:#1762e9;font-size:30px;font-weight:800;margin:2px 0 18px}
+.action{width:100%;height:44px;background:#fff;border:1px solid #dce3ec;border-radius:8px;margin:5px 0;color:#132a50;font-weight:700;cursor:pointer}.action:hover{border-color:#6d9cff;background:#f6f9ff}
+.section{border-top:1px solid #e2e7ef;margin-top:20px;padding-top:18px}.section p{line-height:1.5;color:#52647e;font-size:14px}
+.legend div{margin:10px 0;display:flex;gap:10px;align-items:center;font-size:14px}.sw{width:21px;height:21px;border-radius:50%;border:1px solid #bbb}.m{background:linear-gradient(135deg,#555,#fff,#777)}.b{background:#d8c39c}.p{background:#eee}
+.note{background:#edf5ff;border:1px solid #c7dcff;color:#1455a8;padding:13px;border-radius:8px;font-size:13px;line-height:1.5;margin-top:18px}
+@media(max-width:900px){main{grid-template-columns:1fr;padding:14px}.viewer,.visual{height:60vh;min-height:0}header{padding:0 15px}.top{display:none}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="logo">🦵</div><div><h1>Interactive Total Knee Replacement</h1><div class="sub">Explore a 3D knee with a total knee implant</div></div></div>
+  <div class="top"><button onclick="resetView()">↻ &nbsp; Reset View</button></div>
+</header>
+
+<main>
+<section class="viewer" id="viewer">
+  <img id="visual" class="visual" src="knee-replacement-visual.png" alt="Realistic educational visualization of a total knee replacement">
+  <div class="overlay">🖱 Drag to rotate<br>🖱 Scroll to zoom<br>✋ Pinch to zoom</div>
+  <div class="tools">
+    <button onclick="showAll()">Implant</button>
+    <button onclick="zoomTo(1.15)">X-Ray</button>
+    <button onclick="resetView()">Bone</button>
+    <button onclick="zoomTo(1.25)">Components</button>
+  </div>
+  <button class="full" onclick="document.getElementById('viewer').requestFullscreen?.()">⛶</button>
+</section>
+
+<aside class="panel">
+<h2>Knee Movement</h2>
+<div class="row"><span>Flexion</span><span>0° — 120°</span></div>
+<input id="flex" type="range" min="0" max="120" value="0">
+<div id="degree" class="degree">0°</div>
+<button class="action" data-a="0">Straight (0°)</button>
+<button class="action" data-a="45">45° Flexion</button>
+<button class="action" data-a="90">90° Flexion</button>
+<button class="action" data-a="120">120° Flexion</button>
+<button class="action" onclick="resetView()">↻ Reset View</button>
+
+<div class="section"><b>About the Implant</b><p>This is a total knee replacement (TKR) showing the main artificial components.</p>
+<div class="legend">
+<div><span class="sw m"></span>Femoral component (metal)</div>
+<div><span class="sw p"></span>Tibial insert (polyethylene)</div>
+<div><span class="sw m"></span>Tibial tray (metal)</div>
+<div><span class="sw b"></span>Patellar component</div>
+</div></div>
+<div class="note">ⓘ This model is for educational purposes only and is not intended for medical advice.</div>
+</aside>
+</main>
+
+<script>
+const img=document.getElementById('visual'), flex=document.getElementById('flex'), deg=document.getElementById('degree');
+let scale=1, rot=0, dragging=false, sx=0;
+function apply(){img.style.transform=`scale(${scale}) rotate(${rot}deg)`}
+flex.oninput=()=>{deg.textContent=flex.value+'°'};
+document.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{flex.value=b.dataset.a;deg.textContent=b.dataset.a+'°'});
+function zoomTo(x){scale=x;apply()}
+function showAll(){scale=1;apply()}
+function resetView(){scale=1;rot=0;flex.value=0;deg.textContent='0°';apply()}
+img.addEventListener('wheel',e=>{e.preventDefault();scale=Math.max(.8,Math.min(2.5,scale+(e.deltaY<0?.08:-.08)));apply()},{passive:false});
+img.addEventListener('mousedown',e=>{dragging=true;sx=e.clientX});
+window.addEventListener('mouseup',()=>dragging=false);
+window.addEventListener('mousemove',e=>{if(dragging){rot+=(e.clientX-sx)*.35;sx=e.clientX;apply()}});
+</script>
+</body>
+</html>
